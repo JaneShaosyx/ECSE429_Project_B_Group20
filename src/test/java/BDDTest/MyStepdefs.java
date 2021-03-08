@@ -1,7 +1,6 @@
 package BDDTest;
 
 import io.cucumber.datatable.DataTable;
-import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -13,12 +12,9 @@ import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.junit.AfterClass;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-
 
 public class MyStepdefs extends TestInitialization {
 
@@ -39,7 +35,8 @@ public class MyStepdefs extends TestInitialization {
 //    }
 
     @AfterClass
-    public void shutdown() {
+    public static void shutdown() {
+        checkSideEffect();
         stopServer();
     }
 
@@ -57,6 +54,15 @@ public class MyStepdefs extends TestInitialization {
 
     @Given("the project name with {string} is not in the system:")
     public void theProjectNameWithIsNotInTheSystem(String arg0) {
+        while (findProjectByTitle(arg0) != null) {
+            try {
+                int id = findProjectByTitle(arg0).getInt("id");
+                Unirest.delete("/projects/" + id).asEmpty();
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         assertNull(findProjectByTitle(arg0));
     }
 
@@ -263,6 +269,15 @@ public class MyStepdefs extends TestInitialization {
 
     @And("the todo task name with {string} is not in the system:")
     public void theTodoTaskNameWithIsNotInTheSystem(String arg0) {
+        while (findTodoByTitle(arg0) != null) {
+            try {
+                int id = findTodoByTitle(arg0).getInt("id");
+                Unirest.delete("/todos/" + id).asEmpty();
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         assertNull(findTodoByTitle(arg0));
     }
 
@@ -339,6 +354,17 @@ public class MyStepdefs extends TestInitialization {
     @Given("the category name description of {string} is not in the system")
     public void theCategoryNameDescriptionOfIsNotInTheSystem(String arg0) {
         Boolean response = Unirest.get("/categories?description=" + arg0).asJson().getBody().getObject().getJSONArray("categories").isEmpty();
+        while (!response) {
+            try {
+                JSONObject resObj = Unirest.get("/categories?description=" + arg0).asJson().getBody().getObject().getJSONArray("categories").getJSONObject(0);
+                int id = resObj.getInt("id");
+                Unirest.delete("/categories/" + id).asEmpty();
+                response = Unirest.get("/categories?description=" + arg0).asJson().getBody().getObject().getJSONArray("categories").isEmpty();
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         assertEquals(response, true);
     }
 
