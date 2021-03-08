@@ -6,6 +6,7 @@ import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.junit.After;
+import org.junit.runner.RunWith;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -55,7 +56,7 @@ public class TestInitialization {
         isOnline=false;
     }
 
-    public void checkSideEffect() {
+    public static void checkSideEffect() {
         if (isShutdown) {
             isShutdown = !isShutdown;
             return;
