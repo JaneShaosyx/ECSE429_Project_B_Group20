@@ -11,6 +11,7 @@ Feature:
 
   Scenario Outline: The software engineer set category of a task to a category (Normal Flow)
     Given the todo task with name "<todoTitle>" registered in the system
+    And the category name with "<todoCategories>" is in the system
     When user requests to categorize a task with "<todoTitle>" as "<todoCategories>"
     Then the todo task with name "<todoTitle>" should be in category "<todoCategories>"
 
