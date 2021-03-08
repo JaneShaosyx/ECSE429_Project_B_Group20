@@ -5,7 +5,7 @@ Feature:
     Given the service is running
 
   Scenario Outline: The software engineer add a existing task to my project (Normal Flow)
-    Given  the project name with "<projectTitle>" and todo name with "<todoTitle>" is in the system:
+    Given  the project name with "<projectTitle>" todo name with "<todoTitle>" is in the system:
     When user requests to add a todo task with title "<todoTitle>" to the project with title "<projectTitle>"
     Then the a todo task with title "<todoTitle>" will be add to the tasks list of project with title "<projectTitle>"
 

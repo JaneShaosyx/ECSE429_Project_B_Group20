@@ -52,6 +52,7 @@ public class TestInitialization {
 
     public static void stopServer() {
         serverProcess.destroy();
+        isOnline=false;
     }
 
     public void checkSideEffect() {
@@ -68,7 +69,7 @@ public class TestInitialization {
     }
 
     public static JSONObject findProjectByTitle(String projectName) {
-        JSONObject response = Unirest.get("/projects?title="  + "\""+projectName+"\"").asJson().getBody().getObject();
+        JSONObject response = Unirest.get("/projects?title=" +projectName).asJson().getBody().getObject();
         for (Object proj : response.getJSONArray("projects")) {
             JSONObject project = (JSONObject) proj;
             if (project.getString("title").equals(projectName)) {
@@ -79,7 +80,7 @@ public class TestInitialization {
     }
 
     public static JSONObject findTodoByTitle(String todoTitle) {
-        JSONObject response = Unirest.get("/todos?title="  + "\""+todoTitle+"\"").asJson().getBody().getObject();
+        JSONObject response = Unirest.get("/todos?title="+todoTitle).asJson().getBody().getObject();
         for (Object todo : response.getJSONArray("todos")) {
             JSONObject todo_task = (JSONObject) todo;
             if (todo_task.getString("title").equals(todoTitle)) {
@@ -90,7 +91,7 @@ public class TestInitialization {
     }
 
     public static JSONObject findCategoryByTitle(String categoryTitle) {
-        JSONObject response = Unirest.get("/categories?title=" + "\""+categoryTitle+"\"").asJson().getBody().getObject();
+        JSONObject response = Unirest.get("/categories?title=" + categoryTitle).asJson().getBody().getObject();
         for (Object cate : response.getJSONArray("categories")) {
             JSONObject category = (JSONObject) cate;
             if (category.getString("title").equals(categoryTitle)) {
