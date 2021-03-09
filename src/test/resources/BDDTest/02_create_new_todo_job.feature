@@ -1,3 +1,4 @@
+@tagStory
 Feature:
   As a software engineer, I want to create a new todo task, so that I can record which tasks I need to do.
 

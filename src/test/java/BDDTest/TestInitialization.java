@@ -11,11 +11,13 @@ import org.junit.runner.RunWith;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
 public class TestInitialization {
     private static Process serverProcess;
+    private static ArrayList<Process> serverProcesses = new ArrayList<Process>();
     private static final String URL = "http://localhost:4567";
     static String errorMessage;
     static int statusCode;
@@ -25,6 +27,7 @@ public class TestInitialization {
     static JSONArray taskList;
     public static boolean isShutdown = false;
     public static boolean isOnline = false;
+    public static int isFirst=1;
 
 
     public static void environmentSetUp() {
@@ -36,24 +39,35 @@ public class TestInitialization {
         try {
             ProcessBuilder inputS = new ProcessBuilder("java", "-jar", "runTodoManagerRestAPI-1.5.5.jar");
             serverProcess = inputS.start();
+            serverProcesses.add(serverProcess);
             final InputStream is = serverProcess.getInputStream();
             final InputStreamReader inputSR = new InputStreamReader(is);
             final BufferedReader output = new BufferedReader(inputSR);
             while (true) {
                 String in = output.readLine();
-                if (in.contains("Running on 4567")) {
+                if (Unirest.get("/todos").asJson().getStatus()==200) {
                     isOnline = true;
+                    System.out.println("====start"+"==="+serverProcess.pid());
                     break;
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    public static void stopServer() {
-        serverProcess.destroy();
-        isOnline=false;
+    public static void stopServer2() {
+        for (Process p : serverProcesses) {
+            System.out.println("====stop" + "==" + p.pid());
+            p.destroy();
+        }
+        serverProcesses=new ArrayList<Process>();
+        isFirst=0;
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        isOnline = false;
     }
 
     public static void checkSideEffect() {
@@ -70,7 +84,7 @@ public class TestInitialization {
     }
 
     public static JSONObject findProjectByTitle(String projectName) {
-        JSONObject response = Unirest.get("/projects?title=" +projectName).asJson().getBody().getObject();
+        JSONObject response = Unirest.get("/projects?title=" + projectName).asJson().getBody().getObject();
         for (Object proj : response.getJSONArray("projects")) {
             JSONObject project = (JSONObject) proj;
             if (project.getString("title").equals(projectName)) {
@@ -81,7 +95,7 @@ public class TestInitialization {
     }
 
     public static JSONObject findTodoByTitle(String todoTitle) {
-        JSONObject response = Unirest.get("/todos?title="+todoTitle).asJson().getBody().getObject();
+        JSONObject response = Unirest.get("/todos?title=" + todoTitle).asJson().getBody().getObject();
         for (Object todo : response.getJSONArray("todos")) {
             JSONObject todo_task = (JSONObject) todo;
             if (todo_task.getString("title").equals(todoTitle)) {

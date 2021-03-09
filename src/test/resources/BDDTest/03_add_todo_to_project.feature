@@ -1,3 +1,4 @@
+@tagStory
 Feature:
   As a software engineer, I want to add a task to my current project, so that I can manage the todo tasks I need to do.
 

@@ -1,3 +1,4 @@
+@tagStory
 Feature:
   As a software engineer, I want to create different categories for the task, so that I categorize my todo tasks.
 

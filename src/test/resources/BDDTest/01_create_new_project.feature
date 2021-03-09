@@ -1,3 +1,4 @@
+@tagStory
 Feature:
   As a software engineer, I want to create a new project model for my current project, so that I can manage the work I need to do.
 

@@ -11,14 +11,17 @@ import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
+
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class MyStepdefs extends TestInitialization {
 
-    @Before
+    @BeforeClass
     public void setUpEnvironment() {
         environmentSetUp();
         statusCode = 0;
@@ -34,11 +37,11 @@ public class MyStepdefs extends TestInitialization {
 //        checkSideEffect();
 //    }
 
-    @AfterClass
-    public static void shutdown() {
-        checkSideEffect();
-        stopServer();
-    }
+//    @After
+//    public static void shutdown() {
+//
+//    }
+
 
     @Given("the service is running")
     public void theServiceIsRunning() {
@@ -78,6 +81,7 @@ public class MyStepdefs extends TestInitialization {
         assertEquals(statusCode, 201);
         assertEquals(response.getString("title"), arg0);
         Unirest.delete("/projects/" + response.getInt("id")).asEmpty();
+
     }
 
     @Given("the project name with {string} , completed status {string} is registered in the system:")
@@ -106,6 +110,7 @@ public class MyStepdefs extends TestInitialization {
         assertEquals(statusCode, 200);
         assertEquals(response.getString("completed"), arg1);
         Unirest.delete("/projects/" + response.getInt("id")).asEmpty();
+
     }
 
     @When("user requests to create a project with title {string} and active status {string}")
@@ -118,6 +123,7 @@ public class MyStepdefs extends TestInitialization {
     @Then("the system should output an error code of wrong data type of active status: {string}")
     public void theSystemShouldOutputAnErrorCodeOfWrongDataTypeOfActiveStatus(String arg0) {
         assertEquals(statusCode, Integer.parseInt(arg0));
+
     }
 
     @Given("the todo name with {string} and description {string} is not in the system:")
@@ -147,6 +153,7 @@ public class MyStepdefs extends TestInitialization {
         assertEquals(response.getString("title"), arg0);
         assertEquals(response.getString("description"), arg1);
         Unirest.delete("/todos/" + response.getInt("id")).asEmpty();
+
     }
 
     @Given("the todo task name with {string} ,  done status {string} is registered in the system:")
@@ -175,6 +182,7 @@ public class MyStepdefs extends TestInitialization {
         assertEquals(statusCode, 200);
         assertEquals(response.getString("doneStatus"), arg1);
         Unirest.delete("/todos/" + response.getInt("id")).asEmpty();
+
     }
 
     @Given("the todo name with {string} and done status {string} is not in the system:")
@@ -192,6 +200,7 @@ public class MyStepdefs extends TestInitialization {
     @Then("the system should output an error code of wrong data type of doneStatus: {string}")
     public void theSystemShouldOutputAnErrorCodeOfWrongDataTypeOfDoneStatus(String arg0) {
         assertEquals(statusCode, Integer.parseInt(arg0));
+
     }
 
     @Given("the project name with {string} todo name with {string} is in the system:")
@@ -252,6 +261,7 @@ public class MyStepdefs extends TestInitialization {
         Unirest.delete("/todos/" + id_1 + "/tasksof/" + id_2).asEmpty();
         Unirest.delete("/todos/" + id_1).asEmpty();
         Unirest.delete("/projects/" + id_2).asEmpty();
+
     }
 
     @Given("the project name with {string} is in the system")
@@ -306,6 +316,7 @@ public class MyStepdefs extends TestInitialization {
     @Then("the system should output an error code of add todo task with non-existent project id: {string}")
     public void theSystemShouldOutputAnErrorCodeOfAddTodoTaskWithNonExistentProjectId(String arg0) {
         assertEquals(statusCode, Integer.parseInt(arg0));
+
     }
 
     @Given("the category name with {string} is not in the system")
@@ -335,6 +346,7 @@ public class MyStepdefs extends TestInitialization {
         assertEquals(response.getString("title"), arg0);
         assertEquals(response.getString("description"), arg1);
         Unirest.delete("/categories/" + response.getInt("id")).asEmpty();
+
     }
 
     @When("user requests to create a category with title {string}")
@@ -349,6 +361,7 @@ public class MyStepdefs extends TestInitialization {
         assertEquals(statusCode, 201);
         assertEquals(response.getString("title"), arg0);
         Unirest.delete("/categories/" + response.getInt("id")).asEmpty();
+
     }
 
     @Given("the category name description of {string} is not in the system")
@@ -378,6 +391,7 @@ public class MyStepdefs extends TestInitialization {
     @Then("the system should output an error code of create category without title: {string}")
     public void theSystemShouldOutputAnErrorCodeOfCreateCategoryWithoutTitle(String arg0) {
         assertEquals(statusCode, Integer.parseInt(arg0));
+
     }
 
     @And("there are these categories in the system:")
@@ -466,6 +480,14 @@ public class MyStepdefs extends TestInitialization {
                 e.printStackTrace();
             }
         }
+        while (findCategoryByTitle(arg1) == null) {
+            try {
+                Unirest.post("/categories").body("{\"title\":\"" + arg1 + "\"}").asJson();
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         int id_1 = findTodoByTitle(arg0).getInt("id");
         int id_2 = findCategoryByTitle(arg1).getInt("id");
         while (findTodoByTitle(arg0).has("categories") == false) {
@@ -547,6 +569,7 @@ public class MyStepdefs extends TestInitialization {
         Unirest.delete("/todos/" + id_1 + "/categories/" + id_2).asEmpty();
         Unirest.delete("/todos/" + id_1).asEmpty();
         Unirest.delete("/categories/" + id_2).asEmpty();
+
     }
 
     @Given("the todo task with name {string} is not in the system")
@@ -557,6 +580,9 @@ public class MyStepdefs extends TestInitialization {
     @When("user requests to categorize the todo task with name {string} as {string}")
     public void userRequestsToCategorizeTheTodoTaskWithNameAs(String arg0, String arg1) {
         int id_1 = findTodoByTitle(arg0) == null ? 999 : findTodoByTitle(arg0).getInt("id");
+        while(findCategoryByTitle(arg1)==null){
+            Unirest.post("/categories").body("{\"title\":\"" + arg1 + "\"}").asJson();
+        }
         int id_2 = findCategoryByTitle(arg1).getInt("id");
         HttpResponse<JsonNode> res = Unirest.post("/todos/" + id_1 + "/categories").body("{\"id\":\"" + id_2 + "\"}").asJson();
         response = res.getBody().getObject();
@@ -566,6 +592,7 @@ public class MyStepdefs extends TestInitialization {
     @Then("the system should output an error message of categotrizing a non-existent todo task: {string}")
     public void theSystemShouldOutputAnErrorMessageOfCategotrizingANonExistentTodoTask(String arg0) {
         assertEquals(statusCode, Integer.parseInt(arg0));
+
     }
 
     @Given("the project name with {string} is not in the system")
